@@ -5,6 +5,8 @@ package com.sapient.onlineauction.domain.model;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * @author vhegd1
  *
@@ -13,7 +15,8 @@ public class User {
 
 	private String firstName;
 	private String lastName;
-	private Date DOB;
+	@JsonFormat(pattern = "dd-MM-yyyy")
+	private Date dob;
 	private String userName;
 	private String password;
 	private String type;
@@ -27,7 +30,7 @@ public class User {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.DOB = dOB;
+		this.dob = dOB;
 		this.userName = userName;
 		this.password = password;
 		this.type = type;
@@ -68,15 +71,15 @@ public class User {
 	 * @return the dOB
 	 */
 	public Date getDOB() {
-		return DOB;
+		return dob;
 	}
 
 	/**
 	 * @param dOB
 	 *            the dOB to set
 	 */
-	public void setDOB(Date dOB) {
-		DOB = dOB;
+	public void setDOB(Date dob) {
+		this.dob = dob;
 	}
 
 	/**

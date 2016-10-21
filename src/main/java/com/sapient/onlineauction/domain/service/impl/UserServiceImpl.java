@@ -1,8 +1,9 @@
 package com.sapient.onlineauction.domain.service.impl;
 
-import java.util.Date;
+import java.io.IOException;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,25 +15,26 @@ import com.sapient.onlineauction.domain.service.UserService;
 @Service
 public class UserServiceImpl implements UserService {
 
+	private static final Logger logger = Logger.getLogger(UserServiceImpl.class);
+	
 	@Autowired
 	private UserDao userDao;
 
 	@Override
-	public User getUserByKey(long id) {
-
-		Optional<User> optional = userDao.getUsreByKey(id);
-		if (optional.isPresent()) {
-			return optional.get();
+	public User getUserByKey(long id) throws ApplicationException {
+		Optional<User> optional;
+		try {
+			optional = userDao.getUsreByKey(id);
+			return optional.orElseThrow(ApplicationException::new);
+		} catch (IOException e) {
+			logger.error(e);
+			throw new ApplicationException(e.getMessage(), e.getCause());
 		}
-		return null;
-
 	}
 
 	@Override
-	public String createUser(User user) {
-
+	public String createUser(User user) throws ApplicationException {
 		return userDao.createUsre(user);
-
 	}
 
 	/**

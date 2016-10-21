@@ -1,8 +1,10 @@
 package com.sapient.onlineauction.web.controller;
 
+import java.io.IOException;
+import java.net.URI;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,45 +14,55 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.sapient.onlineauction.common.exception.ApplicationException;
 import com.sapient.onlineauction.domain.model.User;
 import com.sapient.onlineauction.domain.service.UserService;
 
 @RestController
 public class UserController {
 
-	Logger LOGGER = Logger.getLogger(this.getClass());
+	private static final Logger logger = Logger.getLogger(UserController.class);
 
 	@Autowired
 	UserService userService;
 
+	/**
+	 * @param id
+	 * @return
+	 */
 	@RequestMapping("/users/{id}")
-	public ResponseEntity<User> getUserInfo(@PathVariable long id) {
+	public ResponseEntity<?> getUserByUserId(@PathVariable long id) {
 
-		LOGGER.info("Method: getUserInfo");
-		User user = userService.getUserByKey(id);
-		if (null != user) {
-			return new ResponseEntity<>(user, HttpStatus.FOUND);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		logger.info("Method: getUserInfo");
+
+		User user;
+		try {
+			user = userService.getUserByKey(id);
+			return ResponseEntity.ok(user);
+		} catch (ApplicationException e) {
+			logger.error(e);
+			if (e.getCause().getClass() == IOException.class) {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Error(e.getMessage()));
+			}
+
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Error(e.getMessage()));
 		}
-
 	}
 
 	@RequestMapping(path = "/users", method = RequestMethod.POST)
 	public ResponseEntity<?> createUser(@RequestBody User user) {
 
-		LOGGER.info("Method: createUser");
+		logger.info("Method: createUser");
 
-		String result = userService.createUser(user);
-		HttpHeaders httpHeaders = new HttpHeaders();
+		String result;
+		try {
+			result = userService.createUser(user);
+			URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(result).toUri();
+			return ResponseEntity.created(uri).body(result);
 
-		if (result == "fail") {
-			return new ResponseEntity<>("fail", HttpStatus.ALREADY_REPORTED);
-
-		} else {
-			httpHeaders.setLocation(
-					ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(result).toUri());
-			return new ResponseEntity<>("created", httpHeaders, HttpStatus.CREATED);
+		} catch (ApplicationException e) {
+			logger.error(e);
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}
 	}
 

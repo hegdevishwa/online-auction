@@ -18,7 +18,7 @@ public class BaseDaoImpl implements BaseDao {
 	private Bucket bucket;
 
 	@Value("${storage.expiry:0}")
-	public static int expiry;
+	public int expiry;
 
 	/**
 	 * @return the cluster
@@ -53,8 +53,12 @@ public class BaseDaoImpl implements BaseDao {
 	/**
 	 * @return the expiry
 	 */
-	public static int getExpiry() {
+	public int getExpiry() {
 		return expiry;
+	}
+
+	public void setExpiry(int expiry) {
+		this.expiry = expiry;
 	}
 
 }

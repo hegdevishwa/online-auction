@@ -1,6 +1,6 @@
 package com.sapient.onlineauction.common.exception;
 
-public class ApplicationException extends RuntimeException {
+public class ApplicationException extends Exception {
 
 	public ApplicationException() {
 		super();
@@ -12,16 +12,6 @@ public class ApplicationException extends RuntimeException {
 
 	public ApplicationException(String message, Throwable cause) {
 		super(message, cause);
-	}
-
-	@Override
-	public String toString() {
-		return super.toString();
-	}
-
-	@Override
-	public String getMessage() {
-		return super.getMessage();
 	}
 
 }
